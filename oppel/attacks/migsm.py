@@ -35,7 +35,7 @@ def mi_fgsm(net, inp, target,
             10 x 3 x 32 x 32 the input the input should
             just be of dimension 3 x 32 x 32)
 
-        target (float or 1-d torch.Tensor): the index
+        target (int or 0d tensor): the index
             of the targeted class
 
         increase_score (bool): if set to false (the default
@@ -87,7 +87,8 @@ def mi_fgsm(net, inp, target,
     if loss is None:
         loss = nn.CrossEntropyLoss()
 
-    target = torch.tensor(target).view(1)
+    target_tensor = inp.new(size=(1,)).long()
+    target_tensor[0] = target
 
     target_factor = -1 if increase_score else 1
 
@@ -101,7 +102,7 @@ def mi_fgsm(net, inp, target,
         zero_gradients(x_t)
 
         out = net.forward(x_t)
-        _loss = loss(out, target) * target_factor
+        _loss = loss(out, target_tensor) * target_factor
         _loss.backward()
 
         grad_val = x_t.grad.data
