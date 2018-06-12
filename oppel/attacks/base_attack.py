@@ -72,7 +72,7 @@ class BaseAttack(ABC):
         return torch.stack(advs), payloads
 
 
-    def single_attack(self, inp, target_idx=None, **attack_args):
+    def single_attack(self, inp, target=None, **attack_args):
         """
         Function to generate adversarial attacks for a single input
 
@@ -89,14 +89,14 @@ class BaseAttack(ABC):
             **attack_args: named arguments that will be passed to the
                 invocation of the attack function for the given class
         """
-        if target_idx is None and self.requires_target:
+        if target is None and self.requires_target:
             raise ValueError(("If the attack requires a target label it must"
                               " be included as the second argument"))
 
         self.params.update(**attack_args)
 
         if self.requires_target:
-            return self.attack_func(self.model, inp, target_idx, **self.params)
+            return self.attack_func(self.model, inp, target, **self.params)
 
         else:
             return self.attack_func(self.model, inp, **self.params)
